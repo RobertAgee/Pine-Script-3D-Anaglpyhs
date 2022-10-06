@@ -1,0 +1,98 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © CubanEmissary
+
+//@version=4
+study("Floaters", overlay = true, explicit_plot_zorder=true)
+
+colors = input(title="3D Color Setting L/R Eyes", defval="Red/Cyan", options=["Red/Cyan", "Red/Blue", "Anachrome", "Red/Green", "Magenta/Green", "Magenta/Cyan", "Amber/Blue", "Yellow/Magenta"])
+check = input(false, title="Invert Colors?", type=input.bool)
+ysset = input(title="3D Object Size", defval="Large", options=["Tiny", "Small", "Medium", "Large", "Huge", "Dynamic"])
+ystring = input(title="3D Object Symbol", defval="●", options = ["🙮", "●", "○", "◌", "◍", "◎", "◉", "■", "□", "▢", "▣", "▤", "▥", "▦", "▧", "▨", "▩", "▬", "▭", "▮", "▯", "▰", "▱", "▲", "△", "▶", "▷", "▼", "▽", "◀", "◁", "◆", "◇", "◈", "◊"])
+hoff = input(-1, title="Horizontal Offset", type=input.integer)
+voff = input(0, title="Vertical Offset", type=input.integer)
+
+bhd = input(false, title="Distant Assist On? (parallel view)", type=input.bool)
+bsset = input(title="Distance Assist Size", defval="Huge", options=["Tiny", "Small", "Medium", "Large", "Huge", "Dynamic"])
+bstring = input(title="Distance Assist Symbol", defval="◍", options = ["✨", "●", "○", "◌", "◍", "◎", "◉", "■", "□", "▢", "▣", "▤", "▥", "▦", "▧", "▨", "▩", "▬", "▭", "▮", "▯", "▰", "▱", "▲", "△", "▶", "▷", "▼", "▽", "◀", "◁", "◆", "◇", "◈", "◊"])
+color bcolor = input(color.new(#d1d4dc, 50), title="Distance Assist Symbol Color")
+frt = input(false, title="Near Assist On? (cross view)", type=input.bool)
+fsset = input(title="Near Assist Size", defval="Tiny", options=["Tiny", "Small", "Medium", "Large", "Huge", "Dynamic"])
+fstring = input(title="Near Assist Symbol", defval="●", options = ["✨", "●", "○", "◌", "◍", "◎", "◉", "■", "□", "▢", "▣", "▤", "▥", "▦", "▧", "▨", "▩", "▬", "▭", "▮", "▯", "▰", "▱", "▲", "△", "▶", "▷", "▼", "▽", "◀", "◁", "◆", "◇", "◈", "◊"])
+color fcolor = input(color.new(#d1d4dc, 0), title="Near Assist Symbol Color")
+
+color leye = iff((colors == "Red/Cyan" and check == false), color.new(#ff0000, 0), 
+     iff((colors == "Red/Blue" and check == false), color.new(#ff0000, 0), 
+     iff((colors == "Anachrome" and check == false), color.new(#CC0000, 0),
+     iff((colors == "Red/Green" and check == false), color.new(#ff0000, 0), 
+     iff((colors == "Magenta/Green" and check == false), color.new(#ff00ff, 0),
+     iff((colors == "Magenta/Cyan" and check == false), color.new(#FF00FF, 0),
+     iff((colors == "Amber/Blue" and check == false), color.new(#ffbf00, 0),
+     iff((colors == "Yellow/Magenta" and check == false), color.new(#99FF00, 0),
+     iff((colors == "Red/Cyan" and check == true), color.new(#00ffff, 0), 
+     iff((colors == "Red/Blue" and check == true), color.new(#0000FF, 0),
+     iff((colors == "Anachrome" and check == true), color.new(#99CCFF, 0),
+     iff((colors == "Red/Green" and check == true), color.new(#00FF00, 0), 
+     iff((colors == "Magenta/Green" and check == true), color.new(#00FF00, 0),
+     iff((colors == "Magenta/Cyan" and check == true), color.new(#00FFFF, 0),
+     iff((colors == "Amber/Blue" and check == true), color.new(#000099, 0),
+     iff((colors == "Yellow/Magenta" and check == true), color.new(#9900FF, 0),na))))))))))))))))
+
+color reye = iff((colors == "Red/Cyan" and check == true), color.new(#ff0000, 50), 
+     iff((colors == "Red/Blue" and check == true), color.new(#ff0000, 50),
+     iff((colors == "Anachrome" and check == true), color.new(#CC0000, 50),
+     iff((colors == "Red/Green" and check == true), color.new(#ff0000, 50), 
+     iff((colors == "Magenta/Green" and check == true), color.new(#ff00ff, 50),
+     iff((colors == "Magenta/Cyan" and check == true), color.new(#FF00FF, 50),
+     iff((colors == "Amber/Blue" and check == true), color.new(#ffbf00, 50),
+     iff((colors == "Yellow/Magenta" and check == true), color.new(#99FF00, 50),
+     iff((colors == "Red/Cyan" and check == false), color.new(#00ffff, 50), 
+     iff((colors == "Red/Blue" and check == false), color.new(#000099, 50), 
+     iff((colors == "Anachrome" and check == false), color.new(#99CCFF, 50),
+     iff((colors == "Red/Green" and check == false), color.new(#00BB00, 50), 
+     iff((colors == "Magenta/Green" and check == false), color.new(#00BB00, 50),
+     iff((colors == "Magenta/Cyan" and check == false), color.new(#00FFFF, 50),     
+     iff((colors == "Amber/Blue" and check == false), color.new(#000099, 50),
+     iff((colors == "Yellow/Magenta" and check == false), color.new(#9900FF, 50),na))))))))))))))))
+     
+// Determine random value
+x = 0
+x := 16708 * nz(x[1], 1) % 2147483647
+
+// Modulus to determine discrete value and scale to 0-100
+y = (x % 10000)
+z = y/100
+
+y1 = y+voff
+y2 = y
+
+//Plot
+plotchar(((bsset == "Tiny" and bhd == true) ? y2 : na), title="Behind", char=bstring, color=bcolor, size=size.tiny, location=location.absolute, editable=false)
+plotchar(((bsset == "Small" and bhd == true) ? y2 : na), title="Behind", char=bstring, color=bcolor, size=size.small, location=location.absolute, editable=false)
+plotchar(((bsset == "Medium" and bhd == true) ? y2 : na), title="Behind", char=bstring, color=bcolor, size=size.normal, location=location.absolute, editable=false)
+plotchar(((bsset == "Large" and bhd == true) ? y2 : na), title="Behind", char=bstring, color=bcolor, size=size.large, location=location.absolute, editable=false)
+plotchar(((bsset == "Huge" and bhd == true) ? y2 : na), title="Behind", char=bstring, color=bcolor, size=size.huge, location=location.absolute, editable=false)
+plotchar(((bsset == "Dynamic" and bhd == true) ? y2 : na), title="Behind", char=bstring, color=bcolor, size=size.auto, location=location.absolute, editable=false)
+
+plotchar((ysset == "Tiny" ? y1 : na), title="y", color=leye, char=ystring, size=size.tiny, offset=hoff, location=location.absolute, editable=false)
+plotchar((ysset == "Small" ? y1 : na), title="y", color=leye, char=ystring, size=size.small, offset=hoff, location=location.absolute, editable=false)
+plotchar((ysset == "Medium" ? y1 : na), title="y", color=leye, char=ystring, size=size.normal, offset=hoff, location=location.absolute, editable=false)
+plotchar((ysset == "Large" ? y1 : na), title="y", color=leye, char=ystring, size=size.large, offset=hoff, location=location.absolute, editable=false)
+plotchar((ysset == "Huge" ? y1 : na), title="y", color=leye, char=ystring, size=size.huge, offset=hoff, location=location.absolute, editable=false)
+plotchar((ysset == "Dynamic" ? y1 : na), title="y", color=leye, char=ystring, size=size.auto, offset=hoff, location=location.absolute, editable=false)
+
+plotchar((ysset == "Tiny" ? y2 : na), title="y", color=reye, char=ystring, size=size.tiny, location=location.absolute, editable=false)
+plotchar((ysset == "Small" ? y2 : na), title="y", color=reye, char=ystring, size=size.small, location=location.absolute, editable=false)
+plotchar((ysset == "Medium" ? y2 : na), title="y", color=reye, char=ystring, size=size.normal, location=location.absolute, editable=false)
+plotchar((ysset == "Large" ? y2 : na), title="y", color=reye, char=ystring, size=size.large, location=location.absolute, editable=false)
+plotchar((ysset == "Huge" ? y2 : na), title="y", color=reye, char=ystring, size=size.huge, location=location.absolute, editable=false)
+plotchar((ysset == "Dynamic" ? y2 : na), title="y", color=reye, char=ystring, size=size.auto, location=location.absolute, editable=false)
+
+plotchar(((fsset == "Tiny" and frt == true) ? y1 : na), title="In Front", char=fstring, color=fcolor, size=size.tiny, location=location.absolute, editable=false)
+plotchar(((fsset == "Small" and frt == true) ? y1 : na), title="In Front", char=fstring, color=fcolor, size=size.small, location=location.absolute, editable=false)
+plotchar(((fsset == "Medium" and frt == true) ? y1 : na), title="In Front", char=fstring, color=fcolor, size=size.normal, location=location.absolute, editable=false)
+plotchar(((fsset == "Large" and frt == true) ? y1 : na), title="In Front", char=fstring, color=fcolor, size=size.large, location=location.absolute, editable=false)
+plotchar(((fsset == "Huge" and frt == true) ? y1 : na), title="In Front", char=fstring, color=fcolor, size=size.huge, location=location.absolute, editable=false)
+plotchar(((fsset == "Dynamic" and frt == true) ? y1 : na), title="In Front", char=fstring, color=fcolor, size=size.auto, location=location.absolute, editable=false)
+
+//Indicator Scripts must have at least 1 plot() output, even if suppressed from being displayed
+plot(z, title="z", color=color.white, style=plot.style_circles, linewidth=4, display=display.none, editable=false)
